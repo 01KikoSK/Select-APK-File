@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Advanced APK File Selection</title>
+<style>
+  body {
+    font-family: sans-serif;
+  }
+  #file-container {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+  }
+  #file-container.dragover {
+    border-color: #007bff;
+    background-color: #f0f8ff;
+  }
+  #file-info {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #eee;
+    background-color: #f9f9f9;
+    display: none;
+  }
+  .file-property {
+    margin-bottom: 5px;
+  }
+  #file-input {
+    display: none; /* Hide the default file input */
+  }
+  #upload-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: none; /* Initially hidden */
+  }
+  #upload-button:hover {
+    background-color: #0056b3;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Select an APK File</h1>
+
+  <div id="file-container">
+    <p>Drag and drop your APK file here or <label for="file-input" style="color: blue; text-decoration: underline; cursor: pointer;">click to browse</label></p>
+    <input type="file" id="file-input" accept=".apk">
+  </div>
+
+  <div id="file-info">
+    <h2>Selected File Information</h2>
+    <p class="file-property"><strong>Name:</strong> <span id="file-name"></span></p>
+    <p class="file-property"><strong>Size:</strong> <span id="file-size"></span></p>
+    <p class="file-property"><strong>Type:</strong> <span id="file-type"></span></p>
+    <p class="file-property"><strong>Last Modified:</strong> <span id="file-modified"></span></p>
+  </div>
+
+  <button id="upload-button">Upload APK</button>
+
+  <script>
+    const fileContainer = document.getElementById('file-container');
+    const fileInput = document.getElementById('file-input');
+    const fileInfoDiv = document.getElementById('file-info');
+    const fileNameSpan = document.getElementById('file-name');
+    const fileSizeSpan = document.getElementById('file-size');
+    const fileTypeSpan = document.getElementById('file-type');
+    const fileModifiedSpan = document.getElementById('file-modified');
+    const uploadButton = document.getElementById('upload-button');
+    let selectedFile = null;
+
+    // Handle file selection via input element
+    fileInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        handleFile(this.files[0]);
+      } else {
+        resetFileInfo();
+      }
+    });
+
+    // Handle drag and drop functionality
+    fileContainer.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      this.classList.add('dragover');
+    });
+
+    fileContainer.addEventListener('dragleave', function() {
+      this.classList.remove('dragover');
+    });
+
+    fileContainer.addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFile(e.dataTransfer.files[0]);
+      } else {
+        resetFileInfo();
+      }
+    });
+
+    function handleFile(file) {
+      selectedFile = file;
+      fileNameSpan.textContent = file.name;
+      fileSizeSpan.textContent = formatFileSize(file.size);
+      fileTypeSpan.textContent = file.type || 'application/vnd.android.package-archive'; // Default APK MIME type
+      fileModifiedSpan.textContent = new Date(file.lastModified).toLocaleString();
+
+      fileInfoDiv.style.display = 'block';
+      uploadButton.style.display = 'block';
+    }
+
+    function resetFileInfo() {
+      selectedFile = null;
+      fileInfoDiv.style.display = 'none';
+      uploadButton.style.display = 'none';
+      fileNameSpan.textContent = '';
+      fileSizeSpan.textContent = '';
+      fileTypeSpan.textContent = '';
+      fileModifiedSpan.textContent = '';
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Example of handling the upload button click
+    uploadButton.addEventListener('click', function() {
+      if (selectedFile) {
+        // You would typically use FormData to send the file to a server here
+        const formData = new FormData();
+        formData.append('apkFile', selectedFile);
+
+        console.log('Preparing to upload:', selectedFile.name);
+        // Replace 'your-upload-endpoint' with the actual URL of your server-side script
+        // fetch('your-upload-endpoint', {
+        //   method: 'POST',
+        //   body: formData
+        // })
+        // .then(response => response.json())
+        // .then(data => {
+        //   console.log('Upload successful:', data);
+        //   // Handle success message or actions
+        // })
+        // .catch(error => {
+        //   console.error('Upload failed:', error);
+        //   // Handle error message
+        // });
+        alert(`Simulating upload of: ${selectedFile.name}`);
+      } else {
+        alert('Please select an APK file first.');
+      }
+    });
+  </script>
+
+</body>
+</html>
